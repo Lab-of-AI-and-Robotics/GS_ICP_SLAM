@@ -1,0 +1,12 @@
+[submodule "thidparty/Sophus"]
+	path = thirdparty/Sophus
+	url = https://github.com/strasdat/Sophus.git
+[submodule "thirdparty/Eigen"]
+	path = thirdparty/Eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "thirdparty/nvbio"]
+	path = thirdparty/nvbio
+	url = https://github.com/NVlabs/nvbio.git
+[submodule "thirdparty/pybind11"]
+	path = thirdparty/pybind11
+	url = https://github.com/pybind/pybind11.git

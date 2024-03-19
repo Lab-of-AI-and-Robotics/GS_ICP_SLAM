@@ -1,0 +1,3 @@
+## camera parameters
+H W fx fy cx cy depth_scale depth_trunc dataset_type
+1200 680 600.0 600.0 599.5 339.5 6553.5 12.0 replica
