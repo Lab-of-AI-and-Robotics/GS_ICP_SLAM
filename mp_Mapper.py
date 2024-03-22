@@ -128,7 +128,6 @@ class Mapper(SLAMParameters):
         newcam.on_cuda()
 
         self.mapping_cams.append(newcam)
-        self.mapping_losses = np.append(self.mapping_losses, 100.)
         self.keyframe_idxs.append(newcam.cam_idx[0])
         self.new_keyframes.append(len(self.mapping_cams)-1)
 
@@ -156,7 +155,6 @@ class Mapper(SLAMParameters):
                 newcam.on_cuda()
             
                 self.mapping_cams.append(newcam)
-                self.mapping_losses = np.append(self.mapping_losses, 100.)
                 self.keyframe_idxs.append(newcam.cam_idx[0])
                 self.new_keyframes.append(len(self.mapping_cams)-1)
                 self.is_tracking_keyframe_shared[0] = 0
@@ -172,7 +170,6 @@ class Mapper(SLAMParameters):
                 newcam = copy.deepcopy(self.shared_cam)
                 newcam.on_cuda()
                 self.mapping_cams.append(newcam)
-                self.mapping_losses = np.append(self.mapping_losses, 100.)
                 self.keyframe_idxs.append(newcam.cam_idx[0])
                 self.new_keyframes.append(len(self.mapping_cams)-1)
                 self.is_mapping_keyframe_shared[0] = 0
@@ -225,14 +222,13 @@ class Mapper(SLAMParameters):
                 with torch.no_grad():
                     if self.train_iter % 200 == 0:  # 200
                         self.gaussians.prune_large_and_transparent(0.005, self.prune_th)
-                    self.mapping_losses[train_idx] = float(loss)
                     
                     self.gaussians.optimizer.step()
                     self.gaussians.optimizer.zero_grad(set_to_none = True)
                     
                 self.training = False
                 self.train_iter += 1
-                torch.cuda.empty_cache()
+                # torch.cuda.empty_cache()
         if self.verbose:
             while True:
                 self.run_viewer(False)

@@ -417,7 +417,6 @@ class GaussianModel(nn.Module):
         with torch.no_grad():
             new_columns = torch.zeros((self.keyframe_idx.shape[0], 1), device="cuda", dtype=torch.bool)
             self.keyframe_idx = torch.concat([self.keyframe_idx, new_columns], dim=1)
-        torch.cuda.empty_cache()
 
     def update_keyframe_idx_withrender(self, keyframe_idx, visibility_filter):
         self.keyframe_idx[visibility_filter,keyframe_idx]=1
@@ -907,7 +906,6 @@ class GaussianModel(nn.Module):
             else:
                 prune_mask = torch.logical_or(prune_mask, big_points_vs)
         self.prune_points(prune_mask)
-        torch.cuda.empty_cache()
 
     def densify_only(self, max_grad, extent):
         #torch.cuda.empty_cache()
@@ -937,7 +935,6 @@ class GaussianModel(nn.Module):
             big_points_ws = self.get_scaling.max(dim=1).values > 0.1 * extent
             prune_mask = torch.logical_or(prune_mask, big_points_ws)
         self.prune_points(prune_mask)
-        torch.cuda.empty_cache()
         
     def prune_large_and_transparent2(self, min_opacity, scaling_threshold, visibility_filter):
         # reduce size of large gaussians
@@ -952,7 +949,6 @@ class GaussianModel(nn.Module):
         # erase transparent gaussians
         transparent_gaussians = (self.get_opacity[visibility_filter] < min_opacity).squeeze()
         self.prune_points(transparent_gaussians)
-        torch.cuda.empty_cache()
         
     # def get_target_gaussians(self, current_iter, N):
     #     target_indices = torch.where(self.keyframe_idx >= current_iter - N)
