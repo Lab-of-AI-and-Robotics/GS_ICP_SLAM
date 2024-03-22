@@ -2,7 +2,7 @@
 
 Seongbo Ha, Jiung Yeon, Hyeonwoo Yu
 
-Paper | Video
+[Paper](https://arxiv.org/abs/2403.12550) | [Video](https://www.youtube.com/watch?v=e-bHh_uMMxE&t=64s)
 
 This repository is intended to substantiate the results reported in the paper. Additional features including visualization tools will be updated soon!
 
