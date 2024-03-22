@@ -1,10 +1,17 @@
 # RGBD GS-ICP SLAM
 
+Seongbo Ha, Jiung Yeon, Hyeonwoo Yu
+
+Paper | Video
+
+This repository is intended to substantiate the results reported in the paper. Additional features including visualization tools will be updated soon!
+
 ## Environments
 Install requirements
 ```bash
-conda create -n gsicpslam python==3.8.12
+conda create -n gsicpslam python==3.9
 conda activate gsicpslam
+conda install pytorch==2.0.0 torchvision==0.15.0 torchaudio==2.0.0 pytorch-cuda=11.8 -c pytorch -c nvidia
 pip install -r requirements.txt
 ```
 Install submodules
