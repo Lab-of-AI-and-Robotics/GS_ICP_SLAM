@@ -3,7 +3,6 @@ import torch
 import torch.multiprocessing as mp
 import torch.multiprocessing
 from random import randint
-import copy
 import sys
 import cv2
 import numpy as np
@@ -87,6 +86,7 @@ class Tracker(SLAMParameters):
         self.new_points_ready = slam.new_points_ready
         self.final_pose = slam.final_pose
         self.demo = slam.demo
+        self.is_mapping_process_started = slam.is_mapping_process_started
     
     def run(self):
         self.tracking()
@@ -98,6 +98,10 @@ class Tracker(SLAMParameters):
         self.reg.set_max_correspondence_distance(self.max_correspondence_distance)
         self.reg.set_max_knn_distance(self.knn_max_distance)
         if_mapping_keyframe = False
+
+        print("Waiting for mapping process to be prepared")
+        while not self.is_mapping_process_started[0]:
+            time.sleep(0.01)
 
         self.total_start_time = time.time()
         pbar = tqdm(total=self.num_images)

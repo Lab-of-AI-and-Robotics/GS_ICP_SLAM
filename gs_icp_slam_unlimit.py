@@ -84,6 +84,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.new_points_ready = torch.zeros((1)).int()
         self.final_pose = torch.zeros((num_final_poses,4,4)).float()
         self.demo = torch.zeros((1)).int()
+        self.is_mapping_process_started = torch.zeros((1)).int()
         
         self.shared_cam.share_memory()
         self.shared_new_points.share_memory()
@@ -96,6 +97,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.new_points_ready.share_memory_()
         self.final_pose.share_memory_()
         self.demo.share_memory_()
+        self.is_mapping_process_started.share_memory_()
         
         self.demo[0] = args.demo
         self.mapper = Mapper(self)
