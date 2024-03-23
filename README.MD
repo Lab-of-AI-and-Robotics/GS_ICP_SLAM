@@ -1,4 +1,4 @@
-<center>
+<div align=center>
 
 # RGBD GS-ICP SLAM
 
@@ -8,7 +8,7 @@ Seongbo Ha, Jiung Yeon, Hyeonwoo Yu
 
 ![github (1)](https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM/assets/34827206/5722e8f4-165d-4093-8064-a7ed5d9ea008)
 
-</center>
+</div>
 
 This repository is intended to substantiate the results reported in the paper. Additional features including visualization tools will be updated soon!
 
