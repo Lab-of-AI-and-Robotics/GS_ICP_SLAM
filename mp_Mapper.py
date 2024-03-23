@@ -96,6 +96,7 @@ class Mapper(SLAMParameters):
         self.target_gaussians_ready = slam.target_gaussians_ready
         self.final_pose = slam.final_pose
         self.demo = slam.demo
+        self.is_mapping_process_started = slam.is_mapping_process_started
     
     def run(self):
         self.mapping()
@@ -104,6 +105,9 @@ class Mapper(SLAMParameters):
         t = torch.zeros((1,1)).float().cuda()
         if self.verbose:
             network_gui.init("127.0.0.1", 6009)
+        
+        # Mapping Process is ready to receive first frame
+        self.is_mapping_process_started[0] = 1
         
         # Wait for initial gaussians
         while not self.is_tracking_keyframe_shared[0]:
