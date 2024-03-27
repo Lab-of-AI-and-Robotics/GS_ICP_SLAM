@@ -166,12 +166,10 @@ class Tracker(SLAMParameters):
                 self.reg.set_source_filter(num_trackable_points, input_filter)
                 
                 initial_pose = self.poses[-1]
-                # c2w
                 current_pose = self.reg.align(initial_pose)
                 self.poses.append(current_pose)
 
                 # Update Camera pose #
-                # w2c
                 current_pose = np.linalg.inv(current_pose)
                 T = current_pose[:3,3]
                 R = current_pose[:3,:3].transpose()
