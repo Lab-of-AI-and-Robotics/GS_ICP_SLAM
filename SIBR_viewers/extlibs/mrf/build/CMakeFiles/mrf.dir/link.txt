@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libmrf.so -o libmrf.so CMakeFiles/mrf.dir/graph.cpp.o CMakeFiles/mrf.dir/maxflow.cpp.o  -Wl,-rpath,"\$ORIGIN" 

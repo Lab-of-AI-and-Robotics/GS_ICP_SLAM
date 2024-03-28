@@ -1,0 +1,14 @@
+# Target labels
+ xatlas-populate
+# Source files and their labels
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate-complete.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-build.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-configure.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-download.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-install.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-mkdir.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-patch.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-test.rule
+/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-update.rule

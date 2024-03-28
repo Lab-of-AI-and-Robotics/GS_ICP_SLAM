@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -O3 -DNDEBUG -shared -Wl,-soname,libxatlas.so.1.0 -o libxatlas.so.1.0 CMakeFiles/xatlas.dir/source/xatlas/xatlas.cpp.o  -Wl,-rpath,"\$ORIGIN" 
