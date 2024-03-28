@@ -130,111 +130,6 @@ class GaussianModel(nn.Module):
     def oneupSHdegree(self):
         if self.active_sh_degree < self.max_sh_degree:
             self.active_sh_degree += 1
-
-    def create_from_pcd(self, pcd : BasicPointCloud):
-        # Create initial gaussian map
-        # Without using rotations/scales from gicp
-        # self.spatial_lr_scale = spatial_lr_scale
-        fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
-        fused_color = RGB2SH(torch.tensor(np.asarray(pcd.colors)).float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
-        features[:, :3, 0 ] = fused_color
-        features[:, 3:, 1:] = 0.0
-
-        # print("Number of points at initialisation : ", fused_point_cloud.shape[0])
-
-        dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(np.asarray(pcd.points)).float().cuda()), 0.0000001)
-        scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 3)
-        rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-
-        opacities = inverse_sigmoid(0.01 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-
-        self._xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
-        self._features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
-        self._features_rest = nn.Parameter(features[:,:,1:].transpose(1, 2).contiguous().requires_grad_(True))
-        self._scaling = nn.Parameter(scales.requires_grad_(True))
-        self._rotation = nn.Parameter(rots.requires_grad_(True))
-        self._opacity = nn.Parameter(opacities.requires_grad_(True))
-        self.max_radii2D = torch.zeros((self.get_xyz.shape[0]), device="cuda")
-
-    def create_from_pcd2_demo(self, pcd : BasicPointCloud, rots_ : np.array, scales_ : np.array):
-        # Create initial gaussian map
-        # Initialize with rotations/scales from gicp
-        self.spatial_lr_scale = 0.
-        fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
-        fused_color = RGB2SH(torch.tensor(np.asarray(pcd.colors)).float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
-        features[:, :3, 0 ] = fused_color
-        features[:, 3:, 1:] = 0.0
-
-        # self.gicp.set_input_source(np.asarray(pcd.points))
-        # self.gicp.calculate_source_covariance()
-        # gaussian splatting uses log scale scales; exp will be applied as an activation func when returning this value
-        scales = torch.log(torch.ones(fused_point_cloud.shape[0]) * 1e-7)[...,None].repeat(1, 3).float().cuda()
-        
-        # print(torch.max(scales), torch.min(scales))
-        rots = torch.from_numpy(np.asarray(rots_)).float().cuda()
-        # rots = torch.stack([rots[:,3],rots[:,0],rots[:,1],rots[:,2]], dim=1)
-        # dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(np.asarray(pcd.points)).float().cuda()), 0.0000001)
-        # scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 3)
-        # rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        # rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-        # print(scales.shape, rots.shape)
-
-        opacities = inverse_sigmoid(0.6 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-
-        self._xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
-        self._features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
-        self._features_rest = nn.Parameter(features[:,:,1:].transpose(1, 2).contiguous().requires_grad_(True))
-        self._scaling = nn.Parameter(scales.requires_grad_(True))
-        self._rotation = nn.Parameter(rots.requires_grad_(True))
-        self._opacity = nn.Parameter(opacities.requires_grad_(True))
-        self.max_radii2D = torch.zeros((self.get_xyz.shape[0]), device="cuda")
-        # self.keyframe_idx = torch.zeros((self.get_xyz.shape[0]), device="cuda")
-
-    def add_from_pcd2(self, pcd : BasicPointCloud, rots_ : np.array, scales_ : np.array, distances : np.array, corres_target_idx, visibility_filter):
-        # Add new gaussians to the whole gaussian map
-        # Initialize with rotations/scales from gicp
-        fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
-        fused_color = RGB2SH(torch.tensor(np.asarray(pcd.colors)).float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
-        features[:, :3, 0 ] = fused_color
-        features[:, 3:, 1:] = 0.0
-
-        # gaussian splatting uses log scale scales; exp will be applied as an activation func when returning this value
-        # scales_norm = torch.norm(scales_, dim=1).unsqueeze(-1)/1e-5
-        # scales_norm_cat = torch.concat([scales_norm,scales_norm,scales_norm], dim=1)
-        # scales = torch.log(scales_/scales_norm_cat).float().cuda()
-        
-        # scales = torch.log(torch.clamp_min(torch.from_numpy(np.asarray(scales_)), 1e-7)).float().cuda()
-        
-        scales = torch.log(torch.clamp_min(scales_, 1e-7)).float().cuda()
-        
-        # scales = torch.log(torch.clamp_min(scales_/8., 1e-7)).float().cuda()
-        
-        # print(torch.max(scales), torch.min(scales))
-        rots = torch.from_numpy(np.asarray(rots_)).float().cuda()
-        # rots = torch.stack([rots[:,3],rots[:,0],rots[:,1],rots[:,2]], dim=1)
-        # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        # rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-
-        opacities = inverse_sigmoid(0.3 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-        new_xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
-        new_features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
-        new_features_rest = nn.Parameter(features[:,:,1:].transpose(1, 2).contiguous().requires_grad_(True))
-        new_scaling = nn.Parameter(scales.requires_grad_(True))
-        new_rotation = nn.Parameter(rots.requires_grad_(True))
-        new_opacities = nn.Parameter(opacities.requires_grad_(True))
-        # Update keyframe idx #
-        # self.update_keyframe_idx(fused_point_cloud.shape[0], corres_target_idx, distances, visibility_filter)
-        
-        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation)
     
     def create_from_pcd2_tensor(self, points, colors, rots_, scales_, z_vals_, trackable_idxs):
         # Create initial gaussian map
@@ -245,53 +140,11 @@ class GaussianModel(nn.Module):
         features[:, :3, 0 ] = fused_color
         features[:, 3:, 1:] = 0.0
         
-        # self.gicp.set_input_source(np.asarray(pcd.points))
-        # self.gicp.calculate_source_covariance()
-        # gaussian splatting uses log scale scales; exp will be applied as an activation func when returning this value
-        # scales_1 = scales_[:,1].unsqueeze(-1)
-        # scales_1_cat = torch.concat([scales_1,scales_1,scales_1], dim=1)
-        # scales_withz = scales_/scales_1_cat * 0.01
-        # scales = torch.log(scales_withz).float().cuda()
-
-        # Ours(z_value**1.5*2)
         z_vals = torch.clamp_min((z_vals_**1.5)*2., 1.).unsqueeze(-1).repeat(1,3)
-        # z_vals = torch.clamp((z_vals_**1.5)*2., 1., 10.).unsqueeze(-1).repeat(1,3)
         scales_withz = scales_ / z_vals
-        # scales = torch.log(torch.clamp(scales_, 1e-7, 5e-2)).float().cuda()
-        # scales = torch.log(torch.clamp_max(scales_withz, 5e-2)).float().cuda()
         scales = torch.log(scales_withz)
         rots = rots_
         
-        # z_value
-        # z_vals = torch.clamp_min(z_vals_*2, 2.).unsqueeze(-1).repeat(1,3)
-        # # z_vals = torch.clamp((z_vals_**1.5)*2., 1., 10.).unsqueeze(-1).repeat(1,3)
-        # scales_withz = scales_ / z_vals
-        # # scales = torch.log(torch.clamp(scales_, 1e-7, 5e-2)).float().cuda()
-        # # scales = torch.log(torch.clamp_max(scales_withz, 5e-2)).float().cuda()
-        # scales = torch.log(scales_withz)
-        # rots = rots_
-        
-        # directly using values from GICP
-        # scales = torch.log(scales_/2.)
-        # rots = rots_
-        
-        # Original 3DGS
-        # dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(np.asarray(points.cpu())).float().cuda()), 0.0000001)
-        # scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 3)
-        # rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # rots[:, -1] = 1
-        
-        # SplaTAM
-        # scales = z_vals_.unsqueeze(-1).repeat(1,3) / 600.0
-        # scales = torch.log(scales)
-        # rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # rots[:, -1] = 1
-        
-        # # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        # rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-        # print(scales.shape, rots.shape)
-
         opacities = inverse_sigmoid(0.1 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
     
         self._xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
@@ -306,6 +159,8 @@ class GaussianModel(nn.Module):
         self.trackable_mask[(trackable_idxs)] = 1
         
         self.keyframe_idx = torch.ones((self.get_xyz.shape[0],1), dtype=torch.bool, device="cuda")
+        
+        torch.cuda.empty_cache()
     
     def add_from_pcd2_tensor(self, points, colors, rots_, scales_, z_vals_, trackable_idxs):
         # Add new gaussians to the whole gaussian map
@@ -316,75 +171,11 @@ class GaussianModel(nn.Module):
         features[:, :3, 0 ] = fused_color
         features[:, 3:, 1:] = 0.0
         
-        # gaussian splatting uses log scale scales; exp will be applied as an activation func when returning this value
-        # scales_1 = scales_[:,1].unsqueeze(-1)
-        # scales_1_cat = torch.concat([scales_1,scales_1,scales_1], dim=1)
-        # scales_withz = scales_/scales_1_cat * 0.01
-        # scales = torch.log(scales_withz).float().cuda()
-        
         # Ours(z_value**1.5*2)
         z_vals = torch.clamp_min((z_vals_**1.5)*2., 1.).unsqueeze(-1).repeat(1,3)
-        # z_vals = torch.clamp((z_vals_**1.5)*2., 1., 10.).unsqueeze(-1).repeat(1,3)
         scales_withz = scales_ / z_vals
-        # scales = torch.log(torch.clamp(scales_, 1e-7, 5e-2)).float().cuda()
-        # scales = torch.log(torch.clamp_max(scales_withz, 5e-2)).float().cuda()
         scales = torch.log(scales_withz)
         rots = rots_
-        
-        # z_value
-        # z_vals = torch.clamp_min(z_vals_*2, 2.).unsqueeze(-1).repeat(1,3)
-        # # z_vals = torch.clamp((z_vals_**1.5)*2., 1., 10.).unsqueeze(-1).repeat(1,3)
-        # scales_withz = scales_ / z_vals
-        # # scales = torch.log(torch.clamp(scales_, 1e-7, 5e-2)).float().cuda()
-        # # scales = torch.log(torch.clamp_max(scales_withz, 5e-2)).float().cuda()
-        # scales = torch.log(scales_withz)
-        # rots = rots_
-        
-        # directly using covs from GICP
-        # scales = torch.log(scales_/2.)
-        # rots = rots_
-        
-        # Original 3DGS
-        # dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(np.asarray(points.cpu())).float().cuda()), 0.0000001)
-        # scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 3)
-        # rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # rots[:, -1] = 1
-        
-        # SplaTAM
-        # scales = z_vals_.unsqueeze(-1).repeat(1,3) / 600.0
-        # scales = torch.log(scales)
-        # rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # rots[:, -1] = 1
-        
-        # z_vals_1 = torch.clamp_min((z_vals_), 1.).unsqueeze(-1).repeat(1,3)
-        # z_vals_plot = np.array(z_vals_.detach().cpu())
-        # scales_plot = np.array(torch.norm(scales_, dim=1).detach().cpu())
-        # scales_plot2 = np.array(torch.norm(scales_withz, dim=1).detach().cpu())
-        # scales_plot3 = np.array(torch.norm(scales_/z_vals_1, dim=1).detach().cpu())
-        # # scales_plot = np.array(torch.max(scales_, dim=1).values.detach().cpu())
-        # # scales_plot2 = np.array(torch.max(scales_withz, dim=1).values.detach().cpu())
-        # # scales_plot3 = np.array(torch.max(scales_/z_vals_1, dim=1).values.detach().cpu())
-        # # original scales
-        # plt.cla()
-        # plt.scatter(z_vals_plot, scales_plot, color="b", s=1)
-        # plt.savefig("/home/lair99/gaussian_proj/gaussian_ws/src/gs_icp_slam/before.png")
-        # # z_val
-        # plt.cla()
-        # plt.scatter(z_vals_plot, scales_plot3, color="r", s=1)
-        # plt.savefig("/home/lair99/gaussian_proj/gaussian_ws/src/gs_icp_slam/z_val.png")
-        # # z_val**1.5
-        # plt.cla()
-        # plt.scatter(z_vals_plot, scales_plot2, color="r", s=1)
-        # plt.savefig("/home/lair99/gaussian_proj/gaussian_ws/src/gs_icp_slam/z_val_15.png")
-        
-        
-        # print(torch.max(scales), torch.min(scales))
-        
-        # selected = torch.where(torch.norm(scales_withz, dim=1)<0.02)
-        # fused_point_cloud = fused_point_cloud[selected]
-        # features = features[selected]
-        # scales = scales[selected]
-        # rots = rots[selected]
 
         opacities = inverse_sigmoid(0.1 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
         self.new_xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
@@ -410,134 +201,17 @@ class GaussianModel(nn.Module):
         self.keyframe_idx = torch.concat([  self.keyframe_idx,
                                             new_keyframe_idx], dim=0)
         
-       
-    def add_column_to_keyframe_idx(self):
-        # Expanding keyframe_idx table
-        # columnwise(Keyframe)
-        with torch.no_grad():
-            new_columns = torch.zeros((self.keyframe_idx.shape[0], 1), device="cuda", dtype=torch.bool)
-            self.keyframe_idx = torch.concat([self.keyframe_idx, new_columns], dim=1)
-
-    def update_keyframe_idx_withrender(self, keyframe_idx, visibility_filter):
-        self.keyframe_idx[visibility_filter,keyframe_idx]=1
-        self.keyframe_idx[~visibility_filter,keyframe_idx]=0
-        # print(self.keyframe_idx.sum(dim=0))
-    
-    def update_keyframe_idx(self, num_new_gaussians, corres_target_idx, distances, visibility_filter):
-    # row-wise expand #
-    # add new gaussians #
-        # get correspondences
-        # print(corres_target_idx)
-        corres_source_idx = torch.tensor(np.array(np.where(distances<5e-4))).cuda()
-        # if a new gaussian is corresponded with previous gaussian, inherit previous gaussian's keyframe idxs
-        corres_target_idx_ = np.where(corres_target_idx>=0)
-        corres_target_idx = corres_target_idx[corres_target_idx_]
-        # print(f"new gaussians : {num_new_gaussians}")
-        # print(f"corres_target_idx_ : {np.min(corres_target_idx_)}, {np.max(corres_target_idx_)}")
-        # print(f"new gaussians : {self.keyframe_idx.shape[0]}")
-        # print(f"corres_target_idx_ : {np.min(corres_target_idx)}, {np.max(corres_target_idx)}")
-        new_gaussians = torch.zeros((num_new_gaussians, self.keyframe_idx.shape[1]), device="cuda", dtype=torch.bool)
-        new_gaussians[corres_target_idx_] = self.keyframe_idx[corres_target_idx].clone()
-        new_gaussians[~corres_source_idx] = 0
-        # append to keyframe idx
-        self.keyframe_idx = torch.concat([  self.keyframe_idx,
-                                            new_gaussians], dim=0)
-    # column-wise expand #
-    # add current keyframe #
-        # visible gaussians
-        new_column_previous_gaussians = torch.zeros(visibility_filter.shape, device="cuda", dtype=torch.bool)
-        new_column_previous_gaussians[visibility_filter] = 1
-        # new gaussians
-        new_column_new_gaussians = torch.ones((num_new_gaussians,), device="cuda", dtype=torch.bool)
-        # new_column_new_gaussians[num_prev_gaussians:] = 1
-        # concat column
-        full_column = torch.concat([new_column_previous_gaussians,
-                                    new_column_new_gaussians], dim=0)
-        full_column = full_column.reshape(-1,1)
-        
-        # concat all tensors
-        self.keyframe_idx = torch.concat([  self.keyframe_idx,
-                                            full_column], dim=1)
-        # print(f"final idx shape : {self.keyframe_idx.shape}")
-        
-    
-    def add_from_pcd2_demo(self, pcd : BasicPointCloud, rots_ : np.array, scales_ : np.array, keyframe_idx : int):
-        # Add new gaussians to the whole gaussian map
-        # Initialize with rotations/scales from gicp
-        fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
-        fused_color = RGB2SH(torch.tensor(np.asarray(pcd.colors)).float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
-        features[:, :3, 0 ] = fused_color
-        features[:, 3:, 1:] = 0.0
-
-        # gaussian splatting uses log scale scales; exp will be applied as an activation func when returning this value
-        scales = torch.log(torch.ones(fused_point_cloud.shape[0]) * 1e-7)[...,None].repeat(1, 3).float().cuda()
-        # print(torch.max(scales), torch.min(scales))
-        rots = torch.from_numpy(np.asarray(rots_)).float().cuda()
-        # rots = torch.stack([rots[:,3],rots[:,0],rots[:,1],rots[:,2]], dim=1)
-        # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        # rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-
-        opacities = inverse_sigmoid(0.6 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-
-        new_xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
-        new_features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
-        new_features_rest = nn.Parameter(features[:,:,1:].transpose(1, 2).contiguous().requires_grad_(True))
-        new_scaling = nn.Parameter(scales.requires_grad_(True))
-        new_rotation = nn.Parameter(rots.requires_grad_(True))
-        new_opacities = nn.Parameter(opacities.requires_grad_(True))
-        # self.keyframe_idx = torch.concat([ self.keyframe_idx,\
-        #                                 torch.full((fused_point_cloud.shape[0],), keyframe_idx, device="cuda")], dim=0)
-        
-        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation)
-        #torch.cuda.empty_cache()
-
-    def add_from_pcd(self, pcd : BasicPointCloud):
-        # self.spatial_lr_scale = spatial_lr_scale
-        fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
-        fused_color = RGB2SH(torch.tensor(np.asarray(pcd.colors)).float().cuda())
-        features = torch.zeros((fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
-        features[:, :3, 0 ] = fused_color
-        features[:, 3:, 1:] = 0.0
-
-        # print("Number of points at initialisation : ", fused_point_cloud.shape[0])
-
-        dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(np.asarray(pcd.points)).float().cuda()), 0.0000001)
-        scales = torch.log(torch.sqrt(dist2))[...,None].repeat(1, 3)
-        rots = torch.zeros((fused_point_cloud.shape[0], 4), device="cuda")
-        # I will follow x = q.x, y=q.y, z=q.z, 1=q.w
-        # I also modify computeCov3D in RGBD_gaussian-splatting/submodules/diff-gaussian-rasterization/cuda_rasterizer/forward.cu
-        rots[:, -1] = 1 #  was rots[:, 0] = 1 in original gaussian splatting, dont know why
-
-        opacities = inverse_sigmoid(0.3 * torch.ones((fused_point_cloud.shape[0], 1), dtype=torch.float, device="cuda"))
-
-        new_xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
-        new_features_dc = nn.Parameter(features[:,:,0:1].transpose(1, 2).contiguous().requires_grad_(True))
-        new_features_rest = nn.Parameter(features[:,:,1:].transpose(1, 2).contiguous().requires_grad_(True))
-        new_scaling = nn.Parameter(scales.requires_grad_(True))
-        new_rotation = nn.Parameter(rots.requires_grad_(True))
-        new_opacities = nn.Parameter(opacities.requires_grad_(True))
-
-        self.densification_postfix(new_xyz, new_features_dc, new_features_rest, new_opacities, new_scaling, new_rotation)
-        #torch.cuda.empty_cache()
+        torch.cuda.empty_cache()
 
 
     def get_trackable_gaussians_tensor(self, opacity_th):
         with torch.no_grad():
-            opacity_filter = self.get_opacity > opacity_th       # replica : 0.05, tum : 0.09
-            # scale_filter = torch.norm(self.get_scaling, dim=1) < 1.0
+            opacity_filter = self.get_opacity > opacity_th
             target_idxs = torch.logical_and(opacity_filter.squeeze(-1), self.trackable_mask)
             target_points = self.get_xyz[target_idxs]
             target_rots = self.get_rotation[target_idxs]
             target_scales = self.get_scaling[target_idxs]
             
-            # target_points = self.get_xyz[self.trackable_mask]
-            # target_rots = self.get_rotation[self.trackable_mask]
-            # target_scales = self.get_scaling[self.trackable_mask]
-            
-            # print(f"whole gaussians : {self.get_xyz.shape}")
-            # print(f"target gaussians : {target_points.shape}")
             return target_points.cpu(), target_rots.cpu(), target_scales.cpu()
 
     def training_setup(self, training_args):
