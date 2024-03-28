@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/CMakeFiles/nanoflann-populate"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/CMakeFiles/nanoflann-populate.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/CMakeFiles/nanoflann-populate-complete.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-build.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-configure.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-download.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-install.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-patch.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-test.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/nanoflann/subbuild/nanoflann-populate-prefix/src/nanoflann-populate-stamp/nanoflann-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nanoflann-populate"
+		],
+		"name" : "nanoflann-populate"
+	}
+}

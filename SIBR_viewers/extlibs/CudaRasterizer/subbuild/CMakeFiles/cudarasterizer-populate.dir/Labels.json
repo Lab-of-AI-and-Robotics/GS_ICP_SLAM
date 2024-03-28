@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/CMakeFiles/cudarasterizer-populate"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/CMakeFiles/cudarasterizer-populate.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/CMakeFiles/cudarasterizer-populate-complete.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-build.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-configure.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-download.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-install.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-patch.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-test.rule"
+		},
+		{
+			"file" : "/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/CudaRasterizer/subbuild/cudarasterizer-populate-prefix/src/cudarasterizer-populate-stamp/cudarasterizer-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"cudarasterizer-populate"
+		],
+		"name" : "cudarasterizer-populate"
+	}
+}
