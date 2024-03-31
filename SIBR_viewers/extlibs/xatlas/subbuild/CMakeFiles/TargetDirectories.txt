@@ -1,3 +1,0 @@
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate.dir
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/edit_cache.dir
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/rebuild_cache.dir
