@@ -1,3 +1,0 @@
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/picojson/subbuild/CMakeFiles/picojson-populate.dir
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/picojson/subbuild/CMakeFiles/edit_cache.dir
-/home/lair99/gaussian_proj/RGBD_gaussian-splatting/SIBR_viewers/extlibs/picojson/subbuild/CMakeFiles/rebuild_cache.dir

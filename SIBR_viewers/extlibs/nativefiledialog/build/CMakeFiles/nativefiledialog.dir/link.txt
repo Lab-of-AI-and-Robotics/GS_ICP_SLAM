@@ -1,2 +1,0 @@
-/usr/bin/ar qc libnativefiledialog.a CMakeFiles/nativefiledialog.dir/src/nfd_common.c.o CMakeFiles/nativefiledialog.dir/src/nfd_gtk.c.o
-/usr/bin/ranlib libnativefiledialog.a
