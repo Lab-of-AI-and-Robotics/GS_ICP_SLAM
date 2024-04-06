@@ -102,3 +102,15 @@ cd SIBR_viewers
 cmake -Bbuild . -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j24 --target install
 ```
+
+## Real-time demo
+```bash
+python -W ignore gs_icp_slam.py --dataset_path dataset/Replica/office0 --verbose
+
+# In other terminal
+cd SIBR_viewers
+./install/bin/SIBR_remoteGaussian_app --rendering-size 1280 720
+```
+
+## Docker
+Please see the README.md in the docker_files folder.
