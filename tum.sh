@@ -62,7 +62,8 @@ run_()
                                     --max_correspondence_distance $max_correspondence_distance\
                                     --trackable_opacity_th $trackable_opacity_th\
                                     --overlapped_th2 $overlapped_th2\
-                                    --downsample_rate $downsample_rate
+                                    --downsample_rate $downsample_rate\
+                                    --save_results
     wait
 }
 

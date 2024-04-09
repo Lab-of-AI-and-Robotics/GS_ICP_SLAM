@@ -41,6 +41,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.overlapped_th2 = float(args.overlapped_th2)
         self.downsample_rate = int(args.downsample_rate)
         self.test = args.test
+        self.save_results = args.save_results
         
         camera_parameters_file = open(self.config)
         camera_parameters_ = camera_parameters_file.readlines()
@@ -233,6 +234,7 @@ if __name__ == "__main__":
     parser.add_argument("--overlapped_th2", default=5e-5)
     parser.add_argument("--downsample_rate", default=10)
     parser.add_argument("--test", default=None)
+    parser.add_argument("--save_results", action='store_true', default=None)
     args = parser.parse_args()
 
     gs_icp_slam = GS_ICP_SLAM(args)

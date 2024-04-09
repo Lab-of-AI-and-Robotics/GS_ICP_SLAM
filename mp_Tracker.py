@@ -99,9 +99,9 @@ class Tracker(SLAMParameters):
         self.reg.set_max_knn_distance(self.knn_max_distance)
         if_mapping_keyframe = False
 
-        print("Waiting for mapping process to be prepared")
-        while not self.is_mapping_process_started[0]:
-            time.sleep(0.01)
+        # print("Waiting for mapping process to be prepared")
+        # while not self.is_mapping_process_started[0]:
+        #     time.sleep(0.01)
 
         self.total_start_time = time.time()
         pbar = tqdm(total=self.num_images)

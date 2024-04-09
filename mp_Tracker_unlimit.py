@@ -111,9 +111,9 @@ class Tracker(SLAMParameters):
             current_image = self.rgb_images.pop(0)
             depth_image = self.depth_images.pop(0)
 
-            if self.verbose:
-                cv2.imshow("Current image", current_image)
-                cv2.waitKey(1)
+            # if self.verbose:
+            #     cv2.imshow("Current image", current_image)
+            #     cv2.waitKey(1)
             current_image = cv2.cvtColor(current_image, cv2.COLOR_RGB2BGR)
             # Make pointcloud
             points, colors, z_values, trackable_filter = self.downsample_and_make_pointcloud2(depth_image, current_image)

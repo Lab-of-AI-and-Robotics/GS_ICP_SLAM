@@ -17,6 +17,8 @@ from gaussian_renderer import render, render_3, network_gui
 from tqdm import tqdm
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
 import open3d as o3d
+import matplotlib.pyplot as plt
+
 class Pipe():
     def __init__(self, convert_SHs_python, compute_cov3D_python, debug):
         self.convert_SHs_python = convert_SHs_python
@@ -32,6 +34,7 @@ class Mapper(SLAMParameters):
         self.verbose = slam.verbose
         self.keyframe_th = float(slam.keyframe_th)
         self.trackable_opacity_th = slam.trackable_opacity_th
+        self.save_results = slam.save_results
 
         self.camera_parameters = slam.camera_parameters
         self.W = slam.W
@@ -238,6 +241,9 @@ class Mapper(SLAMParameters):
                 self.run_viewer(False)
         
         # End of data
+        if self.save_results:
+            self.gaussians.save_ply(os.path.join(self.output_path, "scene.ply"))
+        
         self.calc_2d_metric()
     
     def run_viewer(self, lower_speed=True):
@@ -312,6 +318,7 @@ class Mapper(SLAMParameters):
         original_resolution = True
         image_names, depth_image_names = self.get_image_dirs(self.dataset_path)
         final_poses = self.final_pose
+        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
         
         with torch.no_grad():
             for i in tqdm(range(len(image_names))):
@@ -366,6 +373,21 @@ class Mapper(SLAMParameters):
                 ssims += [ssim_error.detach().cpu()]
                 lpips_value = cal_lpips(gt_rgb_.unsqueeze(0), ours_rgb_.unsqueeze(0))
                 lpips += [lpips_value.detach().cpu()]
+                
+                if self.save_results and ((i+1)%100==0 or i==len(image_names)-1):
+                    ours_rgb = np.asarray(ours_rgb_.detach().cpu()).squeeze().transpose((1,2,0))
+                    
+                    axs[0].set_title("gt rgb")
+                    axs[0].imshow(gt_rgb)
+                    axs[0].axis("off")
+                    axs[1].set_title("rendered rgb")
+                    axs[1].imshow(ours_rgb)
+                    axs[1].axis("off")
+                    plt.suptitle(f'{i+1} frame')
+                    plt.pause(1e-15)
+                    plt.savefig(f"{self.output_path}/result_{i}.png")
+                    plt.cla()
+                
                 torch.cuda.empty_cache()
             
             psnrs = np.array(psnrs)
