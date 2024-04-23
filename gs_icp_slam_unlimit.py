@@ -42,6 +42,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.downsample_rate = int(args.downsample_rate)
         self.test = args.test
         self.save_results = args.save_results
+        self.rerun_viewer = args.rerun_viewer
         
         camera_parameters_file = open(self.config)
         camera_parameters_ = camera_parameters_file.readlines()
@@ -235,6 +236,7 @@ if __name__ == "__main__":
     parser.add_argument("--downsample_rate", default=10)
     parser.add_argument("--test", default=None)
     parser.add_argument("--save_results", action='store_true', default=None)
+    parser.add_argument("--rerun_viewer", action="store_true", default=False)
     args = parser.parse_args()
 
     gs_icp_slam = GS_ICP_SLAM(args)

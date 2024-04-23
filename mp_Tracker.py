@@ -10,6 +10,7 @@ import open3d as o3d
 import pygicp
 import time
 from scipy.spatial.transform import Rotation
+import rerun as rr
 sys.path.append(os.path.dirname(__file__))
 from arguments import SLAMParameters
 from utils.traj_utils import TrajManager
@@ -30,6 +31,8 @@ class Tracker(SLAMParameters):
         self.overlapped_th2 = slam.overlapped_th2
         self.downsample_rate = slam.downsample_rate
         self.test = slam.test
+        self.rerun_viewer = slam.rerun_viewer
+        self.iter_shared = slam.iter_shared
         
         self.camera_parameters = slam.camera_parameters
         self.W = slam.W
@@ -40,6 +43,9 @@ class Tracker(SLAMParameters):
         self.cy = slam.cy
         self.depth_scale = slam.depth_scale
         self.depth_trunc = slam.depth_trunc
+        self.cam_intrinsic = np.array([[self.fx, 0., self.cx],
+                                       [0., self.fy, self.cy],
+                                       [0.,0.,1]])
         
         self.viewer_fps = slam.viewer_fps
         self.keyframe_freq = slam.keyframe_freq
@@ -93,33 +99,53 @@ class Tracker(SLAMParameters):
     
     def tracking(self):
         tt = torch.zeros((1,1)).float().cuda()
+        
+        if self.rerun_viewer:
+            rr.init("3dgsviewer")
+            rr.connect()
+        
         self.rgb_images, self.depth_images = self.get_images(f"{self.dataset_path}/images")
         self.num_images = len(self.rgb_images)
         self.reg.set_max_correspondence_distance(self.max_correspondence_distance)
         self.reg.set_max_knn_distance(self.knn_max_distance)
         if_mapping_keyframe = False
 
-        # print("Waiting for mapping process to be prepared")
-        # while not self.is_mapping_process_started[0]:
-        #     time.sleep(0.01)
-
         self.total_start_time = time.time()
         pbar = tqdm(total=self.num_images)
 
         for ii in range(self.num_images):
+            self.iter_shared[0] = ii
             current_image = self.rgb_images.pop(0)
             depth_image = self.depth_images.pop(0)
-
-            if self.verbose:
-                cv2.imshow("Current image", current_image)
-                cv2.waitKey(1)
             current_image = cv2.cvtColor(current_image, cv2.COLOR_RGB2BGR)
+                
             # Make pointcloud
             points, colors, z_values, trackable_filter = self.downsample_and_make_pointcloud2(depth_image, current_image)
             # GICP
             if self.iteration_images == 0:
                 current_pose = self.poses[-1]
                 
+                if self.rerun_viewer:
+                    # rr.set_time_sequence("step", self.iteration_images)
+                    rr.set_time_seconds("log_time", time.time() - self.total_start_time)
+                    rr.log(
+                        "cam/current",
+                        rr.Transform3D(translation=self.poses[-1][:3,3],
+                                    rotation=rr.Quaternion(xyzw=(Rotation.from_matrix(self.poses[-1][:3,:3])).as_quat()))
+                    )
+                    rr.log(
+                        "cam/current",
+                        rr.Pinhole(
+                            resolution=[self.W, self.H],
+                            image_from_camera=self.cam_intrinsic,
+                            camera_xyz=rr.ViewCoordinates.RDF,
+                        )
+                    )
+                    rr.log(
+                        "cam/current",
+                        rr.Image(current_image)
+                    )
+                    
                 # Update Camera pose #
                 current_pose = np.linalg.inv(current_pose)
                 T = current_pose[:3,3]
@@ -157,6 +183,10 @@ class Tracker(SLAMParameters):
                 while self.demo[0]:
                     time.sleep(1e-15)
                     self.total_start_time = time.time()
+                if self.rerun_viewer:
+                    # rr.set_time_sequence("step", self.iteration_images)
+                    rr.set_time_seconds("log_time", time.time() - self.total_start_time)
+                    rr.log(f"pt/trackable/{self.iteration_images}", rr.Points3D(points, colors=colors, radii=0.02))
             else:
                 self.reg.set_input_source(points)
                 num_trackable_points = trackable_filter.shape[0]
@@ -168,6 +198,27 @@ class Tracker(SLAMParameters):
 
                 current_pose = self.reg.align(initial_pose)
                 self.poses.append(current_pose)
+
+                if self.rerun_viewer:
+                    # rr.set_time_sequence("step", self.iteration_images)
+                    rr.set_time_seconds("log_time", time.time() - self.total_start_time)
+                    rr.log(
+                        "cam/current",
+                        rr.Transform3D(translation=self.poses[-1][:3,3],
+                                    rotation=rr.Quaternion(xyzw=(Rotation.from_matrix(self.poses[-1][:3,:3])).as_quat()))
+                    )
+                    rr.log(
+                        "cam/current",
+                        rr.Pinhole(
+                            resolution=[self.W, self.H],
+                            image_from_camera=self.cam_intrinsic,
+                            camera_xyz=rr.ViewCoordinates.RDF,
+                        )
+                    )
+                    rr.log(
+                        "cam/current",
+                        rr.Image(current_image)
+                    )
 
                 # Update Camera pose #
                 current_pose = np.linalg.inv(current_pose)
@@ -198,6 +249,7 @@ class Tracker(SLAMParameters):
                     if_mapping_keyframe = False
                 
                 if if_tracking_keyframe:
+                    
                     while self.is_tracking_keyframe_shared[0] or self.is_mapping_keyframe_shared[0]:
                         time.sleep(1e-15)
                     
@@ -236,7 +288,13 @@ class Tracker(SLAMParameters):
                     self.reg.set_target_covariances_fromqs(target_rots.flatten(), target_scales.flatten())
                     self.target_gaussians_ready[0] = 0
                     
+                    if self.rerun_viewer:
+                        # rr.set_time_sequence("step", self.iteration_images)
+                        rr.set_time_seconds("log_time", time.time() - self.total_start_time)
+                        rr.log(f"pt/trackable/{self.iteration_images}", rr.Points3D(points, colors=colors, radii=0.01))
+
                 elif if_mapping_keyframe:
+                    
                     while self.is_tracking_keyframe_shared[0] or self.is_mapping_keyframe_shared[0]:
                         time.sleep(1e-15)
                     
