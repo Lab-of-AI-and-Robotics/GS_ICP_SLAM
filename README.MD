@@ -98,7 +98,7 @@ python setup.py install --user
         bash tum_unlimit.sh
     ```
 
-## Viewer
+## Installing SIBR Viewer
 ```bash
 cd SIBR_viewers
 cmake -Bbuild . -DCMAKE_BUILD_TYPE=Release
@@ -106,6 +106,16 @@ cmake --build build -j24 --target install
 ```
 
 ## Real-time demo
+### Using rerun.io viewer
+
+![GIFMaker_me](https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM/assets/34827206/b4715071-2e4a-4d17-b7a2-612bbd32dbd0)
+
+```bash
+python -W ignore gs_icp_slam.py --rerun_viewer
+```
+
+
+### Using SIBR viewer
 ```bash
 python -W ignore gs_icp_slam.py --dataset_path dataset/Replica/office0 --verbose
 

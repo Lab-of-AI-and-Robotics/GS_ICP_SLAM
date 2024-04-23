@@ -3,7 +3,6 @@ import torch
 import torch.multiprocessing as mp
 import torch.multiprocessing
 from random import randint
-import copy
 import sys
 import cv2
 import numpy as np
@@ -11,6 +10,7 @@ import open3d as o3d
 import pygicp
 import time
 from scipy.spatial.transform import Rotation
+import rerun as rr
 sys.path.append(os.path.dirname(__file__))
 from arguments import SLAMParameters
 from utils.traj_utils import TrajManager
@@ -41,6 +41,9 @@ class Tracker(SLAMParameters):
         self.cy = slam.cy
         self.depth_scale = slam.depth_scale
         self.depth_trunc = slam.depth_trunc
+        self.cam_intrinsic = np.array([[self.fx, 0., self.cx],
+                                       [0., self.fy, self.cy],
+                                       [0.,0.,1]])
         
         self.viewer_fps = slam.viewer_fps
         self.keyframe_freq = slam.keyframe_freq
@@ -94,15 +97,16 @@ class Tracker(SLAMParameters):
     
     def tracking(self):
         tt = torch.zeros((1,1)).float().cuda()
+        
         self.rgb_images, self.depth_images = self.get_images(f"{self.dataset_path}/images")
         self.num_images = len(self.rgb_images)
         self.reg.set_max_correspondence_distance(self.max_correspondence_distance)
         self.reg.set_max_knn_distance(self.knn_max_distance)
         if_mapping_keyframe = False
 
-        print("Waiting for mapping process to be prepared")
-        while not self.is_mapping_process_started[0]:
-            time.sleep(0.01)
+        # print("Waiting for mapping process to be prepared")
+        # while not self.is_mapping_process_started[0]:
+        #     time.sleep(0.01)
 
         self.total_start_time = time.time()
         pbar = tqdm(total=self.num_images)
@@ -110,11 +114,8 @@ class Tracker(SLAMParameters):
         for ii in range(self.num_images):
             current_image = self.rgb_images.pop(0)
             depth_image = self.depth_images.pop(0)
-
-            # if self.verbose:
-            #     cv2.imshow("Current image", current_image)
-            #     cv2.waitKey(1)
             current_image = cv2.cvtColor(current_image, cv2.COLOR_RGB2BGR)
+            
             # Make pointcloud
             points, colors, z_values, trackable_filter = self.downsample_and_make_pointcloud2(depth_image, current_image)
             # GICP
@@ -166,6 +167,7 @@ class Tracker(SLAMParameters):
                 self.reg.set_source_filter(num_trackable_points, input_filter)
                 
                 initial_pose = self.poses[-1]
+
                 current_pose = self.reg.align(initial_pose)
                 self.poses.append(current_pose)
 
@@ -197,7 +199,7 @@ class Tracker(SLAMParameters):
                 else:
                     if_mapping_keyframe = False
                 
-                if if_tracking_keyframe:
+                if if_tracking_keyframe:                    
                     while self.is_tracking_keyframe_shared[0] or self.is_mapping_keyframe_shared[0]:
                         time.sleep(1e-15)
                     
@@ -235,8 +237,8 @@ class Tracker(SLAMParameters):
                     self.reg.set_input_target(target_points)
                     self.reg.set_target_covariances_fromqs(target_rots.flatten(), target_scales.flatten())
                     self.target_gaussians_ready[0] = 0
-                    
-                elif if_mapping_keyframe:
+
+                elif if_mapping_keyframe:                    
                     while self.is_tracking_keyframe_shared[0] or self.is_mapping_keyframe_shared[0]:
                         time.sleep(1e-15)
                     

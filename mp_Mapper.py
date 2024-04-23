@@ -8,6 +8,7 @@ import sys
 import cv2
 import numpy as np
 import time
+import rerun as rr
 sys.path.append(os.path.dirname(__file__))
 from arguments import SLAMParameters
 from utils.traj_utils import TrajManager
@@ -35,6 +36,8 @@ class Mapper(SLAMParameters):
         self.keyframe_th = float(slam.keyframe_th)
         self.trackable_opacity_th = slam.trackable_opacity_th
         self.save_results = slam.save_results
+        self.rerun_viewer = slam.rerun_viewer
+        self.iter_shared = slam.iter_shared
 
         self.camera_parameters = slam.camera_parameters
         self.W = slam.W
@@ -45,6 +48,9 @@ class Mapper(SLAMParameters):
         self.cy = slam.cy
         self.depth_scale = slam.depth_scale
         self.depth_trunc = slam.depth_trunc
+        self.cam_intrinsic = np.array([[self.fx, 0., self.cx],
+                                       [0., self.fy, self.cy],
+                                       [0.,0.,1]])
         
         self.downsample_rate = slam.downsample_rate
         self.viewer_fps = slam.viewer_fps
@@ -109,12 +115,18 @@ class Mapper(SLAMParameters):
         if self.verbose:
             network_gui.init("127.0.0.1", 6009)
         
+        if self.rerun_viewer:
+            rr.init("3dgsviewer")
+            rr.connect()
+        
         # Mapping Process is ready to receive first frame
         self.is_mapping_process_started[0] = 1
         
         # Wait for initial gaussians
         while not self.is_tracking_keyframe_shared[0]:
             time.sleep(1e-15)
+            
+        self.total_start_time_viewer = time.time()
         
         points, colors, rots, scales, z_values, trackable_filter = self.shared_new_gaussians.get_values()
         self.gaussians.create_from_pcd2_tensor(points, colors, rots, scales, z_values, trackable_filter)
@@ -138,6 +150,7 @@ class Mapper(SLAMParameters):
         self.keyframe_idxs.append(newcam.cam_idx[0])
         self.new_keyframes.append(len(self.mapping_cams)-1)
 
+        new_keyframe = False
         while True:
             if self.end_of_dataset[0]:
                 break
@@ -187,6 +200,7 @@ class Mapper(SLAMParameters):
                 if len(self.new_keyframes) > 0:
                     train_idx = self.new_keyframes.pop(0)
                     viewpoint_cam = self.mapping_cams[train_idx]
+                    new_keyframe = True
                 else:
                     train_idx = random.choice(range(len(self.mapping_cams)))
                     viewpoint_cam = self.mapping_cams[train_idx]
@@ -233,6 +247,15 @@ class Mapper(SLAMParameters):
                     self.gaussians.optimizer.step()
                     self.gaussians.optimizer.zero_grad(set_to_none = True)
                     
+                    if new_keyframe and self.rerun_viewer:
+                        current_i = copy.deepcopy(self.iter_shared[0])
+                        rgb_np = image.cpu().numpy().transpose(1,2,0)
+                        rgb_np = np.clip(rgb_np, 0., 1.0) * 255
+                        # rr.set_time_sequence("step", current_i)
+                        rr.set_time_seconds("log_time", time.time() - self.total_start_time_viewer)
+                        rr.log("rendered_rgb", rr.Image(rgb_np))
+                        new_keyframe = False
+                        
                 self.training = False
                 self.train_iter += 1
                 # torch.cuda.empty_cache()
@@ -241,7 +264,7 @@ class Mapper(SLAMParameters):
                 self.run_viewer(False)
         
         # End of data
-        if self.save_results:
+        if self.save_results and not self.rerun_viewer:
             self.gaussians.save_ply(os.path.join(self.output_path, "scene.ply"))
         
         self.calc_2d_metric()

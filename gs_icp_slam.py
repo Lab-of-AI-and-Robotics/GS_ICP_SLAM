@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import open3d as o3d
 import time
+import rerun as rr
 sys.path.append(os.path.dirname(__file__))
 from argparse import ArgumentParser
 from arguments import SLAMParameters
@@ -42,6 +43,11 @@ class GS_ICP_SLAM(SLAMParameters):
         self.downsample_rate = int(args.downsample_rate)
         self.test = args.test
         self.save_results = args.save_results
+        self.rerun_viewer = args.rerun_viewer
+        
+        if self.rerun_viewer:
+            rr.init("3dgsviewer")
+            rr.spawn(connect=False)
         
         camera_parameters_file = open(self.config)
         camera_parameters_ = camera_parameters_file.readlines()
@@ -86,6 +92,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.final_pose = torch.zeros((num_final_poses,4,4)).float()
         self.demo = torch.zeros((1)).int()
         self.is_mapping_process_started = torch.zeros((1)).int()
+        self.iter_shared = torch.zeros((1)).int()
         
         self.shared_cam.share_memory()
         self.shared_new_points.share_memory()
@@ -99,6 +106,7 @@ class GS_ICP_SLAM(SLAMParameters):
         self.final_pose.share_memory_()
         self.demo.share_memory_()
         self.is_mapping_process_started.share_memory_()
+        self.iter_shared.share_memory_()
         
         self.demo[0] = args.demo
         self.mapper = Mapper(self)
@@ -235,6 +243,7 @@ if __name__ == "__main__":
     parser.add_argument("--downsample_rate", default=10)
     parser.add_argument("--test", default=None)
     parser.add_argument("--save_results", action='store_true', default=None)
+    parser.add_argument("--rerun_viewer", action="store_true", default=False)
     args = parser.parse_args()
 
     gs_icp_slam = GS_ICP_SLAM(args)
