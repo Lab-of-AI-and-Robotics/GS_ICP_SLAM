@@ -108,6 +108,8 @@ cmake --build build -j24 --target install
 ## Real-time demo
 ### Using rerun.io viewer
 
+Rerun viewer shows the means of trackable Gaussians, and rendered image from reconstructed 3dgs map.
+
 ![GIFMaker_me](https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM/assets/34827206/b4715071-2e4a-4d17-b7a2-612bbd32dbd0)
 
 ```bash
