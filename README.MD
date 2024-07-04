@@ -4,7 +4,7 @@
 
 Seongbo Ha, Jiung Yeon, Hyeonwoo Yu
 
-<h3 align="center"> CVPR 2024 (Highlight)</h3>
+<h3 align="center"> ECCV 2024 </h3>
 
 [Paper](https://arxiv.org/abs/2403.12550) | [Video](https://www.youtube.com/watch?v=e-bHh_uMMxE&t)
 
