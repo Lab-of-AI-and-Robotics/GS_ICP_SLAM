@@ -2,7 +2,7 @@
 
 # RGBD GS-ICP SLAM
 
-[Seongbo Ha](https://slime-bathroom-1c4.notion.site/Seongbo-Ha-25872d802f5d4d6db1436034c1ecabbc), [Jiung Yeon](https://humdrum-balance-b8f.notion.site/Jiung-Yeon-6754922a22814c9a95af88801a96fb4b), Hyeonwoo Yu
+[Seongbo Ha](https://riboha.github.io), [Jiung Yeon](https://humdrum-balance-b8f.notion.site/Jiung-Yeon-6754922a22814c9a95af88801a96fb4b), Hyeonwoo Yu
 
 <h3 align="center"> ECCV 2024 </h3>
 
