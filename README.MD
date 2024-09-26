@@ -1,6 +1,6 @@
 <div align=center>
 
-# RGBD GS-ICP SLAM
+# RGBD GS-ICP SLAM (100FPS Gaussian Splatting SLAM)
 
 [Seongbo Ha](https://riboha.github.io), [Jiung Yeon](https://humdrum-balance-b8f.notion.site/Jiung-Yeon-6754922a22814c9a95af88801a96fb4b), Hyeonwoo Yu
 
