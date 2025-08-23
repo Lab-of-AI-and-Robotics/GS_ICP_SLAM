@@ -1,0 +1,1 @@
+                 FPS           RMSE     train iter        kframes  gaussians_num                          PSNR           SSIM          LPIPS
