@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/CMakeFiles/nativefiledialog-populate"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/CMakeFiles/nativefiledialog-populate.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/CMakeFiles/nativefiledialog-populate-complete.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-build.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-configure.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-download.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-install.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-patch.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-test.rule"
+		},
+		{
+			"file" : "/home/GS_ICP_SLAM/SIBR_viewers/extlibs/nativefiledialog/subbuild/nativefiledialog-populate-prefix/src/nativefiledialog-populate-stamp/nativefiledialog-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nativefiledialog-populate"
+		],
+		"name" : "nativefiledialog-populate"
+	}
+}

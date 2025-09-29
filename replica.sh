@@ -1,5 +1,5 @@
 OUTPUT_PATH="experiments/results"
-DATASET_PATH="dataset/Replica"
+DATASET_PATH="/home/dataset/Replica"
 
 str_pad() {
 
