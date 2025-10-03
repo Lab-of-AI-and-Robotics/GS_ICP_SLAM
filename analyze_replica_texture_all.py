@@ -17,7 +17,7 @@ class ReplicaTextureAnalyzer:
     """
 
     def __init__(
-        self, replica_base_path="/home/dataset/Replica", method="dissimilarity"
+        self, replica_base_path="/home/dataset/Replica", method="original"
     ):
         """
         초기화 함수
