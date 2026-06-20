@@ -1,0 +1,14 @@
+# Target labels
+ xatlas-populate
+# Source files and their labels
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/CMakeFiles/xatlas-populate-complete.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-build.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-configure.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-download.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-install.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-mkdir.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-patch.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-test.rule
+/home/GS_ICP_SLAM/SIBR_viewers/extlibs/xatlas/subbuild/xatlas-populate-prefix/src/xatlas-populate-stamp/xatlas-populate-update.rule
