@@ -6,7 +6,7 @@
 
 <h3 align="center"> ECCV 2024 </h3>
 
-[Project_Page]() | [Paper](https://arxiv.org/abs/2403.12550) | [Video](https://www.youtube.com/watch?v=e-bHh_uMMxE&t)
+[Project_Page](https://lab-of-ai-and-robotics.github.io/GS-SLAM-Family/) | [Paper](https://arxiv.org/abs/2403.12550) | [Video](https://www.youtube.com/watch?v=e-bHh_uMMxE&t)
 
 ![github (1)](https://github.com/Lab-of-AI-and-Robotics/GS_ICP_SLAM/assets/34827206/5722e8f4-165d-4093-8064-a7ed5d9ea008)
 
