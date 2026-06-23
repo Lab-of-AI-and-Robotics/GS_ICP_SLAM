@@ -54,7 +54,12 @@ class Tracker(SLAMParameters):
         
         # Camera poses
         self.trajmanager = TrajManager(self.camera_parameters[8], self.dataset_path)
-        self.poses = [self.trajmanager.gt_poses[0]]
+        if self.camera_parameters[8] == "custom":
+            # ground truth poses do not exist, use default pose instead
+            self.poses = [self.trajmanager.poses[0]]
+        else:
+            self.poses = [self.trajmanager.gt_poses[0]]
+        
         # Keyframes(added to map gaussians)
         self.last_t = time.time()
         self.iteration_images = 0
@@ -327,11 +332,12 @@ class Tracker(SLAMParameters):
         
         # Tracking end
         pbar.close()
-        self.final_pose[:,:,:] = torch.tensor(self.poses).float()
-        self.end_of_dataset[0] = 1
         
         print(f"System FPS: {1/((time.time()-self.total_start_time)/self.num_images):.2f}")
-        print(f"ATE RMSE: {self.evaluate_ate(self.trajmanager.gt_poses, self.poses)*100.:.2f}")
+        self.end_of_dataset[0] = 1
+        if self.trajmanager.which_dataset != "custom":
+            self.final_pose[:,:,:] = torch.tensor(self.poses).float()
+            print(f"ATE RMSE: {self.evaluate_ate(self.trajmanager.gt_poses, self.poses)*100.:.2f}")
 
     
     def get_images(self, images_folder):
@@ -343,7 +349,7 @@ class Tracker(SLAMParameters):
             for key in tqdm(image_files): 
                 image_name = key.split(".")[0]
                 depth_image_name = f"depth{image_name[5:]}"
-                
+
                 rgb_image = cv2.imread(f"{self.dataset_path}/images/{image_name}.jpg")
                 depth_image = np.array(o3d.io.read_image(f"{self.dataset_path}/depth_images/{depth_image_name}.png"))
                 
@@ -354,6 +360,17 @@ class Tracker(SLAMParameters):
             for i in tqdm(range(len(self.trajmanager.color_paths))):
                 rgb_image = cv2.imread(self.trajmanager.color_paths[i])
                 depth_image = np.array(o3d.io.read_image(self.trajmanager.depth_paths[i]))
+                rgb_images.append(rgb_image)
+                depth_images.append(depth_image)
+            return rgb_images, depth_images
+        elif self.trajmanager.which_dataset == "custom":
+            rgb_folder = os.path.join(self.dataset_path, 'rgb')
+            depth_folder = os.path.join(self.dataset_path, 'depth')
+            rgb_files = sorted(os.listdir(rgb_folder))
+            depth_files = sorted(os.listdir(depth_folder))
+            for rgb_file, depth_file in tqdm(zip(rgb_files, depth_files), total=len(rgb_files)):
+                rgb_image = cv2.imread(os.path.join(rgb_folder, rgb_file))
+                depth_image = np.array(o3d.io.read_image(os.path.join(depth_folder, depth_file)))
                 rgb_images.append(rgb_image)
                 depth_images.append(depth_image)
             return rgb_images, depth_images

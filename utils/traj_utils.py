@@ -10,7 +10,7 @@ class TrajManager:
         For plot/evaluate trajectory
         
         Args:
-        which_dataset : "tum" or "replica"
+        which_dataset : "tum" or "replica" or "custom"
         dataset_path : dataset path
         '''
         self.which_dataset = which_dataset
@@ -18,14 +18,16 @@ class TrajManager:
 
         if self.which_dataset == "tum":
             self.gt_poses = self.tum_load_poses(self.dataset_path + '/traj.txt')
+            self.gt_poses_vis = np.array([x[:3, 3] for x in self.gt_poses])
         elif self.which_dataset == "replica":
             self.gt_poses = self.replica_load_poses(self.dataset_path + '/traj.txt')
+            self.gt_poses_vis = np.array([x[:3, 3] for x in self.gt_poses])
+        elif self.which_dataset == "custom":
+            self.poses = self.load_default_pose()
         else:
             print("Unknown dataset!")
             sys.exit()
         
-        self.gt_poses_vis = np.array([x[:3, 3] for x in self.gt_poses])
-
     def quaternion_rotation_matrix(self, Q, t):
         r = R.from_quat(Q)
         rotation_mat = r.as_matrix()
@@ -59,6 +61,14 @@ class TrajManager:
         pose[:3, :3] = Rotation.from_quat(pvec[3:]).as_matrix()
         pose[:3, 3] = pvec[:3]
         return pose
+    
+    def load_default_pose(self):
+        poses = []
+        # harcoded default position
+        pvec = [1, 1, 1, 1, 1, 1, 1]
+        c2w = self.pose_matrix_from_quaternion(pvec=pvec)
+        poses += [c2w]
+        return np.array(poses)
 
     def tum_load_poses(self, path):
         # poses = []

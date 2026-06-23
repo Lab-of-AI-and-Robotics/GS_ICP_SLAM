@@ -58,7 +58,12 @@ class Mapper(SLAMParameters):
         
         # Camera poses
         self.trajmanager = TrajManager(self.camera_parameters[8], self.dataset_path)
-        self.poses = [self.trajmanager.gt_poses[0]]
+        if self.camera_parameters[8] == "custom":
+            # ground truth poses do not exist, use default pose instead
+            self.poses = [self.trajmanager.poses[0]]
+        else: 
+            self.poses = [self.trajmanager.gt_poses[0]]
+        
         # Keyframes(added to map gaussians)
         self.keyframe_idxs = []
         self.last_t = time.time()
@@ -267,7 +272,8 @@ class Mapper(SLAMParameters):
         if self.save_results and not self.rerun_viewer:
             self.gaussians.save_ply(os.path.join(self.output_path, "scene.ply"))
         
-        self.calc_2d_metric()
+        if self.trajmanager.which_dataset != "custom":
+            self.calc_2d_metric()
     
     def run_viewer(self, lower_speed=True):
         if network_gui.conn == None:
@@ -326,12 +332,21 @@ class Mapper(SLAMParameters):
                 depth_image_name = f"depth{image_name[5:]}"    
                 color_paths.append(f"{self.dataset_path}/images/{image_name}.jpg")            
                 depth_paths.append(f"{self.dataset_path}/depth_images/{depth_image_name}.png")
-                
             return color_paths, depth_paths
+        
         elif self.trajmanager.which_dataset == "tum":
             return self.trajmanager.color_paths, self.trajmanager.depth_paths
-
-    
+        
+        elif self.trajmanager.which_dataset == "custom":
+            rgb_folder = os.path.join(self.dataset_path, 'rgb')
+            depth_folder = os.path.join(self.dataset_path, 'depth')
+            rgb_files = sorted(os.listdir(rgb_folder))
+            depth_files = sorted(os.listdir(depth_folder))
+            for rgb_file, depth_file in zip(rgb_files, depth_files):
+                color_paths.append(os.path.join(rgb_folder, rgb_file))
+                depth_paths.append(os.path.join(depth_folder, depth_file))
+            return color_paths, depth_paths
+        
     def calc_2d_metric(self):
         psnrs = []
         ssims = []
